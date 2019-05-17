@@ -18,6 +18,7 @@ class SpeechDetectionViewController: UIViewController, SFSpeechRecognizerDelegat
     
     @IBOutlet weak var laTexDescription: UILabel!
     @IBAction func startButtonTapped(_ sender: UIButton) {
+//        readFile()
         recordAndRecognizeSpeech()
     }
     
@@ -27,13 +28,39 @@ class SpeechDetectionViewController: UIViewController, SFSpeechRecognizerDelegat
     let request = SFSpeechAudioBufferRecognitionRequest()
     var recognitionTask: SFSpeechRecognitionTask?
     
-    var laTexConversionDict = [
-        "sum" : "\\sum",
-        "sigma" : "\\sum",
-        "summation" : "\\sum",
-        "union" : "\\bigcup"
-        
-    ]
+    
+    func readFile() -> Dictionary<String, String> {
+        let bundle = Bundle.main
+        let path = bundle.path(forResource: "laTexSymbols", ofType: "txt")
+
+        do {
+            let data = try String(contentsOfFile: path ?? "")
+            let dataArr = data.components(separatedBy: "\n")
+            print (dataArr)
+            
+            var keys: [String] = []
+            var values: [String] = []
+            
+            for word in dataArr {
+                print (word)
+                if !word.isEmpty {
+                    let pair = word.components(separatedBy: " ")
+                    keys.append(pair[0])
+                    values.append(pair[1])
+                }
+            }
+            return Dictionary(uniqueKeysWithValues: zip(keys, values))
+        }
+        catch {
+            print ("error")
+        }
+        //return empty dictionary
+        return [String: String]()
+    }
+
+//    var laTexConversionDict = [String: String] ()
+    lazy var laTexConversionDict = readFile()
+
 
     func recordAndRecognizeSpeech() {
         let node = audioEngine.inputNode
